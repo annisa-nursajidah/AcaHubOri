@@ -10,32 +10,32 @@ class Attendance extends Model
     use HasFactory;
 
     protected $fillable = [
-        'student_profile_id',
-        'subject_id',
-        'teacher_profile_id',
-        'tanggal',
+        'school_id',
+        'attendance_session_id',
+        'student_id',
+        'date',
         'status',
-        'keterangan',
+        'scanned_at',
+        'notes',
     ];
 
     protected $casts = [
-        'tanggal' => 'date',
+        'date'       => 'datetime',
+        'scanned_at' => 'datetime',
     ];
 
-    // ─── Relationships ───────────────────────────────────────────
-
-    public function studentProfile()
+    public function school()
     {
-        return $this->belongsTo(StudentProfile::class);
+        return $this->belongsTo(School::class);
     }
 
-    public function subject()
+    public function session()
     {
-        return $this->belongsTo(Subject::class);
+        return $this->belongsTo(AttendanceSession::class, 'attendance_session_id');
     }
 
-    public function teacherProfile()
+    public function student()
     {
-        return $this->belongsTo(TeacherProfile::class);
+        return $this->belongsTo(User::class, 'student_id');
     }
 }

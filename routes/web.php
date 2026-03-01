@@ -19,6 +19,11 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\SchoolController;
 use App\Http\Controllers\SchoolRegistrationController;
 use App\Http\Controllers\SubscriptionController;
+use App\Http\Controllers\ExamController;
+use App\Http\Controllers\ExamQuestionController;
+use App\Http\Controllers\StudentExamController;
+use App\Http\Controllers\AttendanceSessionController;
+use App\Http\Controllers\StudentAttendanceController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -91,6 +96,22 @@ Route::middleware('auth')->group(function () {
 
     // ─── NEW: Enrollments ────────────────────────────────────────
     Route::resource('enrollments', EnrollmentController::class)->only(['index', 'create', 'store', 'destroy']);
+
+    // ─── CBT Exams untuk Siswa ──────────────────────────────────
+    Route::get('/student/exams', [StudentExamController::class, 'index'])->name('student.exams.index');
+    Route::post('/student/exams/{exam}/start', [StudentExamController::class, 'start'])->name('student.exams.start');
+    Route::get('/student/exams/{exam}/take/{attempt}', [StudentExamController::class, 'take'])->name('student.exams.take');
+    Route::post('/student/exams/{exam}/submit/{attempt}', [StudentExamController::class, 'submit'])->name('student.exams.submit');
+
+    // ─── Absensi QR Guru ─────────────────────────────────────────
+    Route::resource('attendance-sessions', AttendanceSessionController::class)->only(['index', 'create', 'store', 'show']);
+    Route::post('/attendance-sessions/{attendance_session}/refresh-qr', [AttendanceSessionController::class, 'refreshQr'])->name('attendance-sessions.refresh-qr');
+    Route::post('/attendance-sessions/{attendance_session}/close', [AttendanceSessionController::class, 'close'])->name('attendance-sessions.close');
+
+    // ─── Absensi QR Siswa ────────────────────────────────────────
+    Route::get('/student/attendances', [StudentAttendanceController::class, 'index'])->name('student.attendances.index');
+    Route::get('/student/attendances/scan', [StudentAttendanceController::class, 'scan'])->name('student.attendance.scan');
+    Route::post('/student/attendances/scan', [StudentAttendanceController::class, 'processScan'])->name('student.attendance.process');
 
     // ─── NEW: Messages ───────────────────────────────────────────
     Route::get('/messages',         [MessageController::class, 'inbox'])->name('messages.inbox');
