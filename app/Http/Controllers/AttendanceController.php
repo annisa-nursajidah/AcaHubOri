@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Attendance;
+use App\Models\AttendanceSession;
+use App\Models\Classroom;
 use App\Models\StudentProfile;
 use App\Models\Subject;
-use App\Models\TeacherProfile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class AttendanceController extends Controller
 {
@@ -15,71 +17,67 @@ class AttendanceController extends Controller
      */
     public function index(Request $request)
     {
-        $user = $request->user();
+        $user     = $request->user();
+        $schoolId = $user->school_id;
 
         if ($user->isStudent()) {
-            // Student sees own attendance
-            $records = Attendance::with(['subject', 'teacherProfile.user'])
-                ->where('student_profile_id', $user->studentProfile?->id)
-                ->orderByDesc('tanggal')
+            // Siswa melihat riwayat absensinya sendiri
+            $records = Attendance::with(['session.subject', 'session.classroom'])
+                ->where('student_id', $user->id)
+                ->orderByDesc('date')
                 ->paginate(20);
 
-            // Summary stats
-            $total = Attendance::where('student_profile_id', $user->studentProfile?->id)->count();
+            $total   = Attendance::where('student_id', $user->id)->count();
             $summary = [
-                'hadir' => Attendance::where('student_profile_id', $user->studentProfile?->id)->where('status', 'hadir')->count(),
-                'izin'  => Attendance::where('student_profile_id', $user->studentProfile?->id)->where('status', 'izin')->count(),
-                'sakit' => Attendance::where('student_profile_id', $user->studentProfile?->id)->where('status', 'sakit')->count(),
-                'alpa'  => Attendance::where('student_profile_id', $user->studentProfile?->id)->where('status', 'alpa')->count(),
+                'present' => Attendance::where('student_id', $user->id)->where('status', 'present')->count(),
+                'late'    => Attendance::where('student_id', $user->id)->where('status', 'late')->count(),
+                'sick'    => Attendance::where('student_id', $user->id)->where('status', 'sick')->count(),
+                'excused' => Attendance::where('student_id', $user->id)->where('status', 'excused')->count(),
+                'absent'  => Attendance::where('student_id', $user->id)->where('status', 'absent')->count(),
             ];
 
             return view('attendances.student', compact('records', 'summary', 'total'));
         }
 
-        // Teacher / Admin: show attendance form or summary
-        $subjects = [];
-        if ($user->isTeacher() && $user->teacherProfile) {
-            $subjects = $user->teacherProfile->subjects;
-        } else {
-            $subjects = Subject::all();
+        // Teacher / Admin: tampilkan daftar sesi absensi
+        $sessionsQuery = AttendanceSession::with(['subject', 'classroom', 'teacher'])
+            ->where('school_id', $schoolId);
+
+        if ($user->isTeacher()) {
+            $sessionsQuery->where('teacher_id', $user->id);
         }
 
-        $students = StudentProfile::with('user')->get();
+        $sessions = $sessionsQuery->orderByDesc('date')->paginate(20);
 
-        return view('attendances.index', compact('subjects', 'students'));
+        return view('attendances.index', compact('sessions'));
     }
 
     /**
-     * Show attendance marking form for a subject on a date.
+     * Buat sesi absensi baru.
      */
     public function create(Request $request)
     {
-        $user = $request->user();
+        $user     = $request->user();
         if ($user->isStudent()) abort(403);
 
-        $subjectId = $request->get('subject_id');
-        $tanggal   = $request->get('tanggal', now()->format('Y-m-d'));
+        $schoolId = $user->school_id;
 
         $subjects = $user->isTeacher()
-            ? $user->teacherProfile->subjects
-            : Subject::all();
+            ? $user->teacherProfile->subjects->where('school_id', $schoolId)
+            : Subject::where('school_id', $schoolId)->get();
 
-        $students = StudentProfile::with('user')->get();
+        $classrooms = Classroom::where('school_id', $schoolId)->get();
 
-        // Get existing records for this date & subject
-        $existing = [];
-        if ($subjectId) {
-            $existing = Attendance::where('subject_id', $subjectId)
-                ->where('tanggal', $tanggal)
-                ->pluck('status', 'student_profile_id')
-                ->toArray();
-        }
+        $students = StudentProfile::with('user')
+            ->whereHas('user', fn($q) => $q->where('school_id', $schoolId))
+            ->get();
 
-        return view('attendances.create', compact('subjects', 'students', 'subjectId', 'tanggal', 'existing'));
+        return view('attendances.create', compact('subjects', 'classrooms', 'students'));
     }
 
+
     /**
-     * Store/update attendance records (batch).
+     * Simpan sesi absensi + rekaman kehadiran siswa.
      */
     public function store(Request $request)
     {
@@ -87,27 +85,45 @@ class AttendanceController extends Controller
         if ($user->isStudent()) abort(403);
 
         $validated = $request->validate([
-            'subject_id'         => ['required', 'exists:subjects,id'],
-            'tanggal'            => ['required', 'date'],
-            'attendance'         => ['required', 'array'],
-            'attendance.*.status'=> ['required', 'in:hadir,izin,sakit,alpa'],
+            'subject_id'           => ['required', 'exists:subjects,id'],
+            'classroom_id'         => ['required', 'exists:classrooms,id'],
+            'date'                 => ['required', 'date'],
+            'start_time'           => ['required'],
+            'attendance'           => ['required', 'array'],
+            'attendance.*.status'  => ['required', 'in:present,late,absent,excused,sick'],
         ]);
 
-        $teacherProfileId = $user->isTeacher()
-            ? $user->teacherProfile->id
-            : TeacherProfile::first()?->id;
+        $schoolId  = $user->school_id;
+        $teacherId = $user->id;
 
+        // Buat atau ambil sesi absensi hari ini
+        $session = AttendanceSession::firstOrCreate(
+            [
+                'school_id'    => $schoolId,
+                'teacher_id'   => $teacherId,
+                'subject_id'   => $validated['subject_id'],
+                'classroom_id' => $validated['classroom_id'],
+                'date'         => $validated['date'],
+            ],
+            [
+                'start_time'    => $validated['start_time'],
+                'qr_code_token' => Str::random(32),
+                'status'        => 'active',
+            ]
+        );
+
+        // Simpan/update rekaman kehadiran per siswa
         foreach ($validated['attendance'] as $studentId => $data) {
             Attendance::updateOrCreate(
                 [
-                    'student_profile_id'  => $studentId,
-                    'subject_id'          => $validated['subject_id'],
-                    'tanggal'             => $validated['tanggal'],
+                    'attendance_session_id' => $session->id,
+                    'student_id'            => $studentId,
                 ],
                 [
-                    'teacher_profile_id' => $teacherProfileId,
-                    'status'             => $data['status'],
-                    'keterangan'         => $data['keterangan'] ?? null,
+                    'school_id' => $schoolId,
+                    'date'      => $validated['date'],
+                    'status'    => $data['status'],
+                    'notes'     => $data['notes'] ?? null,
                 ]
             );
         }
@@ -117,33 +133,27 @@ class AttendanceController extends Controller
     }
 
     /**
-     * View attendance report per subject.
+     * Tampilkan rekap absensi per sesi.
      */
-    public function show(Request $request, $subjectId)
+    public function show(Request $request, AttendanceSession $attendance)
     {
-        $subject = Subject::findOrFail($subjectId);
-        $month   = $request->get('month', now()->format('Y-m'));
+        $session = $attendance;
 
-        $records = Attendance::with(['studentProfile.user'])
-            ->where('subject_id', $subjectId)
-            ->where('tanggal', 'like', $month . '%')
-            ->orderBy('tanggal')
-            ->get();
-
-        $students = StudentProfile::with('user')->get();
-
-        // Build grid: student -> date -> status
-        $dates = $records->pluck('tanggal')->map(fn($d) => $d->format('Y-m-d'))->unique()->sort()->values();
-        $grid  = [];
-        foreach ($students as $s) {
-            $row = [];
-            foreach ($dates as $date) {
-                $r = $records->first(fn($rec) => $rec->student_profile_id === $s->id && $rec->tanggal->format('Y-m-d') === $date);
-                $row[$date] = $r?->status ?? null;
-            }
-            $grid[$s->id] = $row;
+        // Pastikan sesi milik sekolah yang sama
+        if ($session->school_id !== auth()->user()->school_id) {
+            abort(403);
         }
 
-        return view('attendances.show', compact('subject', 'month', 'students', 'dates', 'grid'));
+        $session->load(['subject', 'classroom', 'teacher', 'attendances.student']);
+
+        $schoolId = auth()->user()->school_id;
+        $students = StudentProfile::with('user')
+            ->whereHas('user', fn($q) => $q->where('school_id', $schoolId))
+            ->get();
+
+        // Build grid: student_id -> status
+        $grid = $session->attendances->keyBy('student_id');
+
+        return view('attendances.show', compact('session', 'students', 'grid'));
     }
 }

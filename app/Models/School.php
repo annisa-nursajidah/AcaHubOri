@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class School extends Model
 {
@@ -11,6 +12,7 @@ class School extends Model
 
     protected $fillable = [
         'name',
+        'slug',
         'address',
         'phone',
         'email',
@@ -22,6 +24,31 @@ class School extends Model
     protected $casts = [
         'is_active' => 'boolean',
     ];
+
+    // ─── Boot ────────────────────────────────────────────────────
+
+    /**
+     * Auto-generate a unique slug from name if none is provided.
+     */
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function (School $school) {
+            if (empty($school->slug)) {
+                $base = Str::slug($school->name);
+                $slug = $base;
+                $i    = 1;
+
+                // Ensure uniqueness
+                while (static::where('slug', $slug)->exists()) {
+                    $slug = $base . '-' . $i++;
+                }
+
+                $school->slug = $slug;
+            }
+        });
+    }
 
     // ─── Relationships ───────────────────────────────────────────
 

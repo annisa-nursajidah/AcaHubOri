@@ -6,7 +6,7 @@
         <h1 class="text-2xl font-black text-gray-900">Kelola Sekolah</h1>
         <p class="text-sm text-gray-500 mt-1">{{ $schools->total() }} sekolah terdaftar</p>
     </div>
-    <a href="{{ route('schools.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-semibold hover:bg-brand-600 shadow-md transition">
+    <a href="{{ route('admin.schools.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500 text-white text-sm font-semibold hover:bg-brand-600 shadow-md transition">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
         Tambah Sekolah
     </a>

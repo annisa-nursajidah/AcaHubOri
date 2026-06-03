@@ -8,16 +8,25 @@ use App\Models\Subject;
 use App\Models\Grade;
 use App\Models\StudentProfile;
 use App\Models\TeacherProfile;
+use App\Models\Classroom;
+use App\Models\Attendance;
+use App\Models\Enrollment;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
     /**
      * Show the role-appropriate dashboard with statistics.
      */
-    public function index(Request $request)
+    public function index()
     {
-        $user = $request->user();
+        $user = auth()->user();
 
+        if ($user->role === 'parent') {
+            return redirect()->route('parent.dashboard');
+        }
+
+        // Statistik Dummy untuk Demo
         $data = [
             'user'          => $user,
         ];
@@ -28,31 +37,75 @@ class DashboardController extends Controller
             $data['totalSchools']  = \App\Models\School::count();
             $data['totalStudents'] = User::where('role', 'student')->count();
             $data['totalTeachers'] = User::where('role', 'teacher')->count();
+            $data['totalSubjects'] = Subject::count();
             $data['totalRevenue']  = \App\Models\SchoolSubscription::where('status', 'active')->sum('total_price');
         } elseif ($user->isSchoolAdmin()) {
             // Admin Sekolah hanya melihat statistik sekolahnya
             $school = \App\Models\School::find($user->school_id);
-            $data['totalStudents'] = User::where('school_id', $user->school_id)->where('role', 'student')->count();
-            $data['totalTeachers'] = User::where('school_id', $user->school_id)->where('role', 'teacher')->count();
-            $data['totalSubjects'] = Subject::where('school_id', $user->school_id)->count();
-            $data['totalClassrooms'] = \App\Models\Classroom::where('school_id', $user->school_id)->count();
+            $totalStudents = User::where('school_id', $user->school_id)->where('role', 'student')->count();
+            $totalTeachers = User::where('school_id', $user->school_id)->where('role', 'teacher')->count();
+            $totalParents  = User::where('school_id', $user->school_id)->where('role', 'parent')->count();
+            $data['totalStudents']   = $totalStudents;
+            $data['totalTeachers']   = $totalTeachers;
+            $data['totalSubjects']   = Subject::where('school_id', $user->school_id)->count();
+            $data['totalClassrooms'] = Classroom::where('school_id', $user->school_id)->count();
 
             // Sisa Kuota
             $data['totalQuota']     = $school ? $school->totalAccountsQuota() : 0;
             $data['remainingQuota'] = $school ? $school->remainingAccountsQuota() : 0;
+
+            // ── Chart 1: Komposisi Pengguna (Donut) ──
+            $data['userComposition'] = [
+                'labels' => ['Siswa', 'Guru', 'Wali Murid'],
+                'data'   => [$totalStudents, $totalTeachers, $totalParents],
+            ];
+
+            // ── Chart 2: Siswa per Kelas (Bar) ──
+            $classroomsWithStudents = Classroom::where('school_id', $user->school_id)
+                ->withCount(['enrollments as student_count'])
+                ->orderBy('tingkat')
+                ->get()
+                ->map(fn($c) => [
+                    'name'  => $c->nama,
+                    'count' => $c->student_count,
+                ]);
+            $data['classroomStudents'] = $classroomsWithStudents;
+
+            // ── Chart 3: Tren Kehadiran 6 Bulan Terakhir (Line) ──
+            $attendanceTrend = collect();
+            for ($i = 5; $i >= 0; $i--) {
+                $month    = Carbon::now()->subMonths($i);
+                $total    = Attendance::where('school_id', $user->school_id)
+                                ->whereYear('date', $month->year)
+                                ->whereMonth('date', $month->month)
+                                ->count();
+                $hadir    = Attendance::where('school_id', $user->school_id)
+                                ->whereYear('date', $month->year)
+                                ->whereMonth('date', $month->month)
+                                ->where('status', 'hadir')
+                                ->count();
+                $attendanceTrend->push([
+                    'label'   => $month->translatedFormat('M Y'),
+                    'total'   => $total,
+                    'hadir'   => $hadir,
+                    'pct'     => $total > 0 ? round($hadir / $total * 100, 1) : 0,
+                ]);
+            }
+            $data['attendanceTrend'] = $attendanceTrend;
         } else {
             // Teacher & Student
+            $data['totalStudents'] = User::where('role', 'student')->count();
+            $data['totalTeachers'] = User::where('role', 'teacher')->count();
             $data['totalSubjects'] = Subject::count();
             $data['totalGrades']   = Grade::count();
         }
 
         // Grade distribution for chart (If School Admin, Teacher, or Student)
-        if (!$user->isAdmin()) {
-            $gradeQuery = Grade::query();
-            // TODO: In a real multi-tenant app, filter Grade by school_id
-            $allGrades = $gradeQuery->get();
-            $data['gradeDistribution'] = [
-                'A'  => $allGrades->where('nilai', '>=', 90)->count(),
+        $gradeQuery = Grade::query();
+        // TODO: In a real multi-tenant app, filter Grade by school_id
+        $allGrades = $gradeQuery->get();
+        $data['gradeDistribution'] = [
+            'A'  => $allGrades->where('nilai', '>=', 90)->count(),
                 'B'  => $allGrades->whereBetween('nilai', [75, 89.99])->count(),
                 'C'  => $allGrades->whereBetween('nilai', [60, 74.99])->count(),
                 'D'  => $allGrades->whereBetween('nilai', [50, 59.99])->count(),
@@ -69,7 +122,6 @@ class DashboardController extends Controller
                     'avg'  => round($g->avg, 1),
                 ]);
             $data['subjectAverages'] = $subjectAverages;
-        }
 
         // Role-specific data
         if ($user->isStudent() && $user->studentProfile) {
@@ -81,8 +133,38 @@ class DashboardController extends Controller
         }
 
         if ($user->isTeacher() && $user->teacherProfile) {
+            $teacherProfileId = $user->teacherProfile->id;
             $data['mySubjects']    = $user->teacherProfile->subjects()->count();
-            $data['myGradesGiven'] = Grade::where('teacher_profile_id', $user->teacherProfile->id)->count();
+            $data['myGradesGiven'] = Grade::where('teacher_profile_id', $teacherProfileId)->count();
+
+            // ── Chart: Rata-rata Nilai per Mapel yang Diajarkan ──
+            $teacherSubjectAvg = Grade::selectRaw('subject_id, AVG(nilai) as avg, COUNT(*) as total_nilai')
+                ->where('teacher_profile_id', $teacherProfileId)
+                ->groupBy('subject_id')
+                ->with('subject')
+                ->get()
+                ->map(fn($g) => [
+                    'name'        => $g->subject->nama ?? '?',
+                    'avg'         => round($g->avg, 1),
+                    'total_nilai' => $g->total_nilai,
+                    'status'      => $g->avg >= 75 ? 'lulus' : 'perlu_perhatian',
+                ]);
+            $data['teacherSubjectAvg'] = $teacherSubjectAvg;
+
+            // ── Chart: Distribusi Nilai Siswa yang Diajar ──
+            $myStudentGrades = Grade::where('teacher_profile_id', $teacherProfileId)->get();
+            $data['teacherGradeDist'] = [
+                'A' => $myStudentGrades->where('nilai', '>=', 90)->count(),
+                'B' => $myStudentGrades->whereBetween('nilai', [75, 89.99])->count(),
+                'C' => $myStudentGrades->whereBetween('nilai', [60, 74.99])->count(),
+                'D' => $myStudentGrades->whereBetween('nilai', [50, 59.99])->count(),
+                'E' => $myStudentGrades->where('nilai', '<', 50)->count(),
+            ];
+
+            // ── Ringkasan ──
+            $data['teacherAvgOverall'] = $myStudentGrades->count() > 0
+                ? round($myStudentGrades->avg('nilai'), 1)
+                : 0;
         }
 
         return view('dashboard', $data);

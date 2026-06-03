@@ -122,7 +122,7 @@
             {{-- Footer --}}
             <p class="mt-8 text-center text-sm text-gray-500">
                 Don't have an account?
-                <a href="{{ route('register') }}" class="text-gray-700 font-semibold hover:text-brand-600 transition">Contact your school administrator.</a>
+                <a href="#" class="text-gray-700 font-semibold hover:text-brand-600 transition">Contact your school administrator.</a>
             </p>
         </div>
     </div>

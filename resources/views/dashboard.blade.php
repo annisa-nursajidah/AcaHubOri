@@ -7,6 +7,7 @@
     <h1 class="text-2xl font-extrabold text-gray-900">Selamat datang, {{ $user->name }}! 👋</h1>
     <p class="text-sm text-gray-500 mt-0.5">
         @if($user->isAdmin()) Panel administrasi AcaHub
+        @elseif($user->isSchoolAdmin()) Ringkasan manajemen sekolah Anda
         @elseif($user->isTeacher()) Ringkasan mengajar Anda
         @else Ringkasan akademik Anda
         @endif
@@ -14,7 +15,11 @@
 </div>
 
 {{-- Stat cards --}}
-        </div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    @if($user->isAdmin())
+        <x-dashboard-stat icon="students" label="Total Siswa" :value="$totalStudents" color="brand" />
+        <x-dashboard-stat icon="teachers" label="Total Guru" :value="$totalTeachers" color="accent" />
+        <x-dashboard-stat icon="subjects" label="Total Mapel" :value="$totalSubjects" color="green" />
 
         {{-- Widget Link Pendaftaran (PPDB) --}}
         <div class="bg-gradient-to-br from-brand-600 to-accent-600 rounded-2xl p-5 border border-brand-500 shadow-lg text-white relative overflow-hidden flex flex-col justify-between group">
@@ -66,6 +71,11 @@
         <x-dashboard-stat icon="grades" label="Nilai Diberikan" :value="$myGradesGiven ?? 0" color="accent" />
         <x-dashboard-stat icon="students" label="Total Siswa" :value="$totalStudents" color="green" />
         <x-dashboard-stat icon="subjects" label="Total Mapel" :value="$totalSubjects" color="blue" />
+    @elseif($user->isSchoolAdmin())
+        <x-dashboard-stat icon="students" label="Total Siswa" :value="$totalStudents" color="brand" />
+        <x-dashboard-stat icon="teachers" label="Total Guru" :value="$totalTeachers" color="accent" />
+        <x-dashboard-stat icon="subjects" label="Total Mapel" :value="$totalSubjects" color="green" />
+        <x-dashboard-stat icon="students" label="Total Kelas" :value="$totalClassrooms" color="blue" />
     @else
         <x-dashboard-stat icon="grades" label="Nilai Saya" :value="$myGradeCount ?? 0" color="brand" />
         <x-dashboard-stat icon="grades" label="Rata-rata" :value="number_format($myAverage ?? 0, 1)" color="{{ ($myAverage ?? 0) >= 75 ? 'green' : 'accent' }}" />

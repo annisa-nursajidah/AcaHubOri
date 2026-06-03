@@ -109,16 +109,64 @@ class SchoolRegistrationController extends Controller
 
     /**
      * Payment success callback page.
+     * Verifies transaction status directly from Midtrans API.
      */
     public function paymentSuccess(Request $request)
     {
-        $orderId = $request->order_id;
+        $orderId      = $request->order_id;
         $subscription = SchoolSubscription::where('midtrans_order_id', $orderId)
             ->with('school')
             ->first();
 
+        if (!$subscription) {
+            abort(404, 'Order tidak ditemukan.');
+        }
+
+        // Jika masih pending, cek status ke Midtrans API langsung
+        if ($subscription->status === 'pending') {
+            $this->checkAndActivateFromMidtrans($subscription);
+            $subscription->refresh();
+        }
+
         return view('schools.payment-success', compact('subscription'));
     }
+
+    /**
+     * Cek status transaksi ke Midtrans dan aktifkan jika sudah dibayar.
+     */
+    private function checkAndActivateFromMidtrans(SchoolSubscription $subscription): void
+    {
+        $serverKey   = config('services.midtrans.server_key');
+        if (!$serverKey) return;
+
+        $isProduction = config('services.midtrans.is_production', false);
+        $baseUrl = $isProduction
+            ? 'https://api.midtrans.com/v2'
+            : 'https://api.sandbox.midtrans.com/v2';
+
+        try {
+            $response = Http::withBasicAuth($serverKey, '')
+                ->get("{$baseUrl}/{$subscription->midtrans_order_id}/status");
+
+            if (!$response->successful()) return;
+
+            $data              = $response->json();
+            $transactionStatus = $data['transaction_status'] ?? '';
+            $fraudStatus       = $data['fraud_status'] ?? '';
+
+            if (in_array($transactionStatus, ['capture', 'settlement'])) {
+                if ($fraudStatus === 'accept' || empty($fraudStatus)) {
+                    $subscription->activate();
+                    \Log::info("Payment success callback: subscription {$subscription->midtrans_order_id} activated.");
+                }
+            } elseif (in_array($transactionStatus, ['cancel', 'deny', 'expire'])) {
+                $subscription->update(['status' => 'cancelled']);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Midtrans status check failed', ['error' => $e->getMessage()]);
+        }
+    }
+
 
     /**
      * Create Midtrans Snap Token via API.

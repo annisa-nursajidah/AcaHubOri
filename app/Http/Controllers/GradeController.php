@@ -17,7 +17,10 @@ class GradeController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = Grade::with(['studentProfile.user', 'subject', 'teacherProfile.user']);
+        $schoolId = $user->school_id;
+
+        $query = Grade::with(['studentProfile.user', 'subject', 'teacherProfile.user'])
+            ->whereHas('studentProfile.user', fn($q) => $q->where('school_id', $schoolId));
 
         // Filter based on role
         if ($user->isTeacher()) {
@@ -25,7 +28,7 @@ class GradeController extends Controller
         } elseif ($user->isStudent()) {
             $query->where('student_profile_id', $user->studentProfile?->id);
         }
-        // Admin sees all
+        // Admin/school_admin sees all within their school
 
         // Search filter
         if ($request->filled('search')) {
@@ -53,9 +56,10 @@ class GradeController extends Controller
     {
         $this->authorizeTeacherOrAdmin();
 
-        $students = StudentProfile::with('user')->get();
-        $subjects = Subject::all();
-        $teachers = TeacherProfile::with('user')->get();
+        $schoolId = auth()->user()->school_id;
+        $students = StudentProfile::with('user')->whereHas('user', fn($q) => $q->where('school_id', $schoolId))->get();
+        $subjects = Subject::where('school_id', $schoolId)->get();
+        $teachers = TeacherProfile::with('user')->whereHas('user', fn($q) => $q->where('school_id', $schoolId))->get();
 
         return view('grades.create', compact('students', 'subjects', 'teachers'));
     }
@@ -107,10 +111,17 @@ class GradeController extends Controller
     {
         $this->authorizeTeacherOrAdmin();
 
+        $schoolId = auth()->user()->school_id;
+
+        // Pastikan grade ini milik sekolah yang sama
+        if ($grade->studentProfile?->user?->school_id !== $schoolId) {
+            abort(403);
+        }
+
         $grade->load(['studentProfile.user', 'subject', 'teacherProfile.user']);
-        $students = StudentProfile::with('user')->get();
-        $subjects = Subject::all();
-        $teachers = TeacherProfile::with('user')->get();
+        $students = StudentProfile::with('user')->whereHas('user', fn($q) => $q->where('school_id', $schoolId))->get();
+        $subjects = Subject::where('school_id', $schoolId)->get();
+        $teachers = TeacherProfile::with('user')->whereHas('user', fn($q) => $q->where('school_id', $schoolId))->get();
 
         return view('grades.edit', compact('grade', 'students', 'subjects', 'teachers'));
     }

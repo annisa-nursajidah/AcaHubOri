@@ -99,6 +99,31 @@
                 @error('invite_code')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
             </div>
 
+            <div class="pt-4 mt-2 border-t-2 border-dashed border-gray-200">
+                <div class="flex items-center gap-2 mb-4">
+                    <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg>
+                    <h3 class="text-sm font-bold text-gray-900">Data Wali Murid / Orang Tua</h3>
+                    <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200 uppercase tracking-wider ml-auto">Opsional</span>
+                </div>
+                
+                <p class="text-[11px] text-gray-500 mb-4 leading-relaxed">Jika dilengkapi, sistem akan otomatis membuatkan akun Portal untuk Orang Tua Anda agar mereka tertaut langsung dengan profil Anda dan dapat memantau rapor / kehadiran.</p>
+
+                <div class="space-y-4">
+                    <div>
+                        <input id="parent_name" type="text" name="parent_name" value="{{ old('parent_name') }}"
+                               class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition-all placeholder:text-gray-400"
+                               placeholder="Nama Lengkap Ayah/Ibu">
+                        @error('parent_name')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    </div>
+                    <div>
+                        <input id="parent_email" type="email" name="parent_email" value="{{ old('parent_email') }}"
+                               class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition-all placeholder:text-gray-400"
+                               placeholder="Email Aktif Ayah/Ibu (Berbeda dengan email siswa)">
+                        @error('parent_email')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
+                    </div>
+                </div>
+            </div>
+
             <div class="pt-2">
                 <button type="submit" class="w-full py-3.5 px-4 rounded-xl text-sm font-semibold text-white bg-brand-500 hover:bg-brand-600 focus:outline-none focus:ring-4 focus:ring-brand-500/30 transition-all relative group overflow-hidden">
                     <span class="relative z-10 flex items-center justify-center gap-2">
