@@ -33,7 +33,10 @@ class SubjectController extends Controller
      */
     public function create()
     {
-        $teachers = TeacherProfile::with('user')->get();
+        $schoolId = auth()->user()->school_id;
+        $teachers = TeacherProfile::with('user')
+            ->whereHas('user', fn($q) => $q->where('school_id', $schoolId))
+            ->get();
         return view('subjects.create', compact('teachers'));
     }
 
@@ -82,7 +85,10 @@ class SubjectController extends Controller
     {
         if ($subject->school_id !== auth()->user()->school_id) abort(403);
         $subject->load('teachers');
-        $teachers = TeacherProfile::with('user')->get();
+        $schoolId = auth()->user()->school_id;
+        $teachers = TeacherProfile::with('user')
+            ->whereHas('user', fn($q) => $q->where('school_id', $schoolId))
+            ->get();
         return view('subjects.edit', compact('subject', 'teachers'));
     }
 

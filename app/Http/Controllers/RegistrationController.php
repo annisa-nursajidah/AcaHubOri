@@ -14,9 +14,13 @@ class RegistrationController extends Controller
     /**
      * Show the public registration form for a specific school.
      */
-    public function showRegistrationForm($schoolId)
+    public function showRegistrationForm($schoolIdentifier)
     {
-        $school = School::where('is_active', true)->findOrFail($schoolId);
+        $school = School::where('is_active', true)
+            ->where(function($query) use ($schoolIdentifier) {
+                $query->where('id', $schoolIdentifier)
+                      ->orWhere('slug', $schoolIdentifier);
+            })->firstOrFail();
 
         // Optional: Check if school has remaining quota before showing form
         if (!$school->canCreateAccount()) {
@@ -29,19 +33,27 @@ class RegistrationController extends Controller
     /**
      * Handle the registration request.
      */
-    public function register(Request $request, $schoolId)
+    public function register(Request $request, $schoolIdentifier)
     {
-        $school = School::where('is_active', true)->findOrFail($schoolId);
+        $school = School::where('is_active', true)
+            ->where(function($query) use ($schoolIdentifier) {
+                $query->where('id', $schoolIdentifier)
+                      ->orWhere('slug', $schoolIdentifier);
+            })->firstOrFail();
 
         if (!$school->canCreateAccount()) {
             return back()->with('error', 'Maaf, kuota pendaftaran untuk sekolah ini telah penuh.');
         }
 
         $validated = $request->validate([
-            'name'        => ['required', 'string', 'max:255'],
-            'email'       => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password'    => ['required', 'confirmed', Rules\Password::defaults()],
-            'invite_code' => ['nullable', 'string', 'max:20'],
+            'name'         => ['required', 'string', 'max:255'],
+            'email'        => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'password'     => ['required', 'confirmed', Rules\Password::defaults()],
+            'invite_code'  => ['nullable', 'string', 'max:20'],
+            'parent_name'  => ['nullable', 'string', 'max:255', 'required_with:parent_email'],
+            'parent_email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email', 'required_with:parent_name'],
+        ], [
+            'parent_email.unique' => 'Email Wali Murid ini sudah terdaftar di sistem AcaHub. Silakan gunakan email lain atau hubungi admin sekolah.',
         ]);
 
         $status = 'pending';
@@ -50,6 +62,7 @@ class RegistrationController extends Controller
             $status = 'active';
         }
 
+        // 1. Buat Akun Siswa
         $user = User::create([
             'name'      => $validated['name'],
             'email'     => $validated['email'],
@@ -58,19 +71,41 @@ class RegistrationController extends Controller
             'school_id' => $school->id,
         ]);
 
-        // Create profile with determined status
+        // 2. Buat Profil Pendidikan
         StudentProfile::create([
             'user_id' => $user->id,
             'status'  => $status,
         ]);
 
-        if ($status === 'active') {
-            return redirect()->route('login')
-                ->with('success', 'Pendaftaran berhasil menggunakan Kode Undangan! Silakan langsung login menggunakan email dan password Anda.');
+        // 3. (Otomatis) Buat Akun Parent Jika Diisi
+        $hasParentAccount = false;
+        if (!empty($validated['parent_name']) && !empty($validated['parent_email'])) {
+            $parent = User::create([
+                'name'      => $validated['parent_name'],
+                'email'     => $validated['parent_email'],
+                'password'  => Hash::make($validated['password']), // Samakan sandinya dengan siswa
+                'role'      => 'parent',
+                'school_id' => $school->id,
+            ]);
+
+            // Tautkan relasi Pivot Parent <-> Student
+            $parent->children()->sync([$user->id]);
+            $hasParentAccount = true;
         }
 
-        return redirect()->route('registration.success', $school->id)
-            ->with('success', 'Pendaftaran berhasil! Silakan tunggu persetujuan dari Admin Sekolah.');
+        if ($status === 'active') {
+             $successMsg = 'Pendaftaran Siswa berhasil menggunakan Kode Undangan! Silakan langsung login.';
+             if ($hasParentAccount) {
+                 $successMsg .= ' Akun Parent/Wali juga telah diregistrasikan dengan Password yang sama.';
+             }
+             return redirect()->route('login')->with('success', $successMsg);
+        }
+
+        $pendingMsg = 'Pendaftaran berhasil! Silakan tunggu persetujuan dari Admin Sekolah.';
+        if ($hasParentAccount) {
+             $pendingMsg = 'Pendaftaran Siswa & Akun Wali Murid berhasil! Silakan tunggu persetujuan Admin Sekolah.';
+        }
+        return redirect()->route('registration.success', $school->id)->with('success', $pendingMsg);
     }
 
     public function success($schoolId)

@@ -7,7 +7,7 @@
         <h1 class="text-2xl font-extrabold text-gray-900">Mata Pelajaran</h1>
         <p class="text-sm text-gray-500 mt-0.5">Daftar semua mata pelajaran</p>
     </div>
-    @if(auth()->user()->isAdmin())
+    @if(auth()->user()->isAdmin() || auth()->user()->isSchoolAdmin())
         <a href="{{ route('subjects.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent-500 text-white text-sm font-semibold hover:bg-accent-600 shadow-lg shadow-accent-500/25 transition-all hover:shadow-accent-500/40 hover:-translate-y-0.5">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
             Tambah Mapel
@@ -40,7 +40,7 @@
                 <div class="p-5">
                     <div class="flex items-start justify-between mb-3">
                         <span class="inline-flex px-2.5 py-1 rounded-lg bg-brand-50 text-brand-700 text-xs font-bold tracking-wide">{{ $subject->kode }}</span>
-                        @if(auth()->user()->isAdmin())
+                        @if(auth()->user()->isAdmin() || auth()->user()->isSchoolAdmin())
                             <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                 <a href="{{ route('subjects.edit', $subject) }}" class="p-1.5 rounded-lg text-gray-400 hover:text-amber-600 hover:bg-amber-50 transition">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z"/></svg>

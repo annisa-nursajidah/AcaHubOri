@@ -12,7 +12,10 @@ class EnrollmentController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Enrollment::with(['studentProfile.user', 'classroom', 'academicYear']);
+        $schoolId = auth()->user()->school_id;
+
+        $query = Enrollment::with(['studentProfile.user', 'classroom', 'academicYear'])
+            ->whereHas('classroom', fn($q) => $q->where('school_id', $schoolId));
 
         if ($request->filled('classroom_id')) {
             $query->where('classroom_id', $request->classroom_id);
@@ -22,17 +25,18 @@ class EnrollmentController extends Controller
         }
 
         $enrollments = $query->latest()->paginate(20);
-        $classrooms  = Classroom::orderBy('nama')->get();
-        $years       = AcademicYear::orderByDesc('tahun')->get();
+        $classrooms  = Classroom::where('school_id', $schoolId)->orderBy('nama')->get();
+        $years       = AcademicYear::where('school_id', $schoolId)->orderByDesc('tahun')->get();
 
         return view('enrollments.index', compact('enrollments', 'classrooms', 'years'));
     }
 
     public function create()
     {
-        $students   = StudentProfile::with('user')->get();
-        $classrooms = Classroom::with('academicYear')->orderBy('nama')->get();
-        $years      = AcademicYear::orderByDesc('tahun')->get();
+        $schoolId   = auth()->user()->school_id;
+        $students   = StudentProfile::with('user')->whereHas('user', fn($q) => $q->where('school_id', $schoolId))->get();
+        $classrooms = Classroom::with('academicYear')->where('school_id', $schoolId)->orderBy('nama')->get();
+        $years      = AcademicYear::where('school_id', $schoolId)->orderByDesc('tahun')->get();
 
         return view('enrollments.create', compact('students', 'classrooms', 'years'));
     }

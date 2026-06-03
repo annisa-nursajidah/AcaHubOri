@@ -7,7 +7,7 @@
         <h1 class="text-2xl font-bold text-gray-800">Pendaftaran Siswa</h1>
         <p class="text-sm text-gray-500 mt-1">Kelola penempatan siswa ke kelas</p>
     </div>
-    @if(auth()->user()->isAdmin())
+    @if(auth()->user()->isAdmin() || auth()->user()->isSchoolAdmin())
     <a href="{{ route('enrollments.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-500 text-white rounded-xl font-semibold text-sm shadow-lg shadow-brand-500/25 hover:bg-brand-600 transition">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
         Daftarkan Siswa
@@ -63,7 +63,7 @@
                     </span>
                 </td>
                 <td class="px-6 py-4 text-right">
-                    @if(auth()->user()->isAdmin())
+                    @if(auth()->user()->isAdmin() || auth()->user()->isSchoolAdmin())
                     <form method="POST" action="{{ route('enrollments.destroy', $e) }}" onsubmit="return confirm('Hapus pendaftaran ini?')">
                         @csrf @method('DELETE')
                         <button type="submit" class="px-3 py-1.5 text-xs font-medium bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition">Hapus</button>

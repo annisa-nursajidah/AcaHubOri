@@ -23,7 +23,9 @@ class ClassroomController extends Controller
 
     public function create()
     {
-        $teachers = TeacherProfile::where('school_id', auth()->user()->school_id)->with('user')->get();
+        $teachers = TeacherProfile::whereHas('user', function ($q) {
+            $q->where('school_id', auth()->user()->school_id);
+        })->with('user')->get();
         $years    = AcademicYear::where('school_id', auth()->user()->school_id)->orderByDesc('tahun')->get();
 
         return view('classrooms.create', compact('teachers', 'years'));

@@ -18,7 +18,7 @@
         {{-- Auth buttons --}}
         <div class="flex items-center gap-4">
             <a href="{{ route('login') }}" class="text-sm font-medium text-gray-700 hover:text-brand-600 transition">Sign In</a>
-            <a href="{{ route('register') }}" class="px-5 py-2.5 rounded-full bg-accent-500 text-white text-sm font-semibold hover:bg-accent-600 shadow-lg shadow-accent-500/25 transition-all hover:shadow-accent-500/40">Start Free Trial</a>
+            <a href="{{ route('schools.register') }}" class="px-5 py-2.5 rounded-full bg-accent-500 text-white text-sm font-semibold hover:bg-accent-600 shadow-lg shadow-accent-500/25 transition-all hover:shadow-accent-500/40">Start Free Trial</a>
         </div>
     </div>
 </nav>
@@ -37,7 +37,7 @@
                 AcaHub bridges the gap between teachers, students, and parents with real-time grading, easy reporting, and seamless communication.
             </p>
             <div class="mt-8 flex flex-wrap gap-4">
-                <a href="{{ route('register') }}" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-accent-500 text-white font-semibold hover:bg-accent-600 shadow-lg shadow-accent-500/25 transition-all hover:shadow-accent-500/40 hover:-translate-y-0.5">
+                <a href="{{ route('schools.register') }}" class="inline-flex items-center gap-2 px-7 py-3.5 rounded-full bg-accent-500 text-white font-semibold hover:bg-accent-600 shadow-lg shadow-accent-500/25 transition-all hover:shadow-accent-500/40 hover:-translate-y-0.5">
                     Get Started Now
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
                 </a>

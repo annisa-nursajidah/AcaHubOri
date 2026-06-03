@@ -16,7 +16,20 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
+        $authUser = $request->user();
+
+        // Only admin and school_admin may access this page
+        if (!$authUser->isAdmin() && !$authUser->isSchoolAdmin()) {
+            abort(403);
+        }
+
         $query = User::query();
+
+        // School admin: scope to their own school only, exclude platform admins
+        if ($authUser->isSchoolAdmin()) {
+            $query->where('school_id', $authUser->school_id)
+                  ->whereNotIn('role', ['admin', 'school_admin']);
+        }
 
         if ($request->filled('search')) {
             $search = $request->search;

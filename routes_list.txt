@@ -1,0 +1,130 @@
+﻿
+  GET|HEAD        / ...... home
+  POST            _ignition/execute-solution ignition.executeSolution ΓÇ║ Spatie\LaravelIgnition ΓÇ║ ExecuteSolΓÇª
+  GET|HEAD        _ignition/health-check ignition.healthCheck ΓÇ║ Spatie\LaravelIgnition ΓÇ║ HealthChecΓÇª
+  POST            _ignition/update-config ignition.updateConfig ΓÇ║ Spatie\LaravelIgnition ΓÇ║ UpdateConfΓÇª
+  GET|HEAD        academic-years academic-years.index ΓÇ║ AcademicYearController@inΓÇª
+  POST            academic-years academic-years.store ΓÇ║ AcademicYearController@stΓÇª
+  GET|HEAD        academic-years/create academic-years.create ΓÇ║ AcademicYearControlΓÇª
+  GET|HEAD        academic-years/{academic_year} academic-years.show ΓÇ║ AcademicΓÇª
+  PUT|PATCH       academic-years/{academic_year} academic-years.update ΓÇ║ AcademicYeΓÇª
+  DELETE          academic-years/{academic_year} academic-years.destroy ΓÇ║ AcademicYeaΓÇª
+  PATCH           academic-years/{academic_year}/activate academic-years.activate ΓÇ║ AcaΓÇª
+  GET|HEAD        academic-years/{academic_year}/edit academic-years.edit ΓÇ║ AcaΓÇª
+  POST            admin/schools admin.schools.store ΓÇ║ SchoolController@stoΓÇª
+  GET|HEAD        admin/schools/create admin.schools.create ΓÇ║ SchoolControllΓÇª
+  GET|HEAD        announcements announcements.index ΓÇ║ AnnouncementController@indΓÇª
+  POST            announcements announcements.store ΓÇ║ AnnouncementController@stoΓÇª
+  GET|HEAD        announcements/create announcements.create ΓÇ║ AnnouncementControllΓÇª
+  GET|HEAD        announcements/{announcement} announcements.show ΓÇ║ AnnouncemeΓÇª
+  PUT|PATCH       announcements/{announcement} announcements.update ΓÇ║ AnnouncementΓÇª
+  DELETE          announcements/{announcement} announcements.destroy ΓÇ║ AnnouncementCΓÇª
+  GET|HEAD        announcements/{announcement}/edit announcements.edit ΓÇ║ AnnouΓÇª
+  POST            api/midtrans/webhook api.midtrans.webhook ΓÇ║ SubscriptionController@midtraΓÇª
+  GET|HEAD        api/user .... 
+  GET|HEAD        attendance-sessions attendance-sessions.index ΓÇ║ AttendanceSessionControllΓÇª
+  POST            attendance-sessions attendance-sessions.store ΓÇ║ AttendanceSessionControllΓÇª
+  GET|HEAD        attendance-sessions/create attendance-sessions.create ΓÇ║ AttendanceSessionCoΓÇª
+  GET|HEAD        attendance-sessions/{attendance_session} attendance-sessions.show ΓÇ║ AttΓÇª
+  POST            attendance-sessions/{attendance_session}/close attendance-sessions.close ΓÇª
+  POST            attendance-sessions/{attendance_session}/refresh-qr attendance-sessions.refresh-qrΓÇª
+  GET|HEAD        attendances ΓÇª
+  POST            attendances ΓÇª
+  GET|HEAD        attendances/create attendances.create ΓÇ║ AttendanceControllerΓÇª
+  GET|HEAD        attendances/{subject} attendances.show ΓÇ║ AttendanceContrΓÇª
+  GET|HEAD        classrooms cΓÇª
+  POST            classrooms cΓÇª
+  GET|HEAD        classrooms/create classrooms.create ΓÇ║ ClassroomController@ΓÇª
+  GET|HEAD        classrooms/{classroom} classrooms.show ΓÇ║ ClassroomContΓÇª
+  PUT|PATCH       classrooms/{classroom} classrooms.update ΓÇ║ ClassroomControΓÇª
+  DELETE          classrooms/{classroom} classrooms.destroy ΓÇ║ ClassroomControlΓÇª
+  GET|HEAD        classrooms/{classroom}/edit classrooms.edit ΓÇ║ ClassrooΓÇª
+  GET|HEAD        daftar/{school} registration.form ΓÇ║ RegistrationController@showRegistrationΓÇª
+  POST            daftar/{school} registration.submit ΓÇ║ RegistrationController@regiΓÇª
+  GET|HEAD        daftar/{school}/success registration.success ΓÇ║ RegistrationControΓÇª
+  GET|HEAD        dashboard daΓÇª
+  GET|HEAD        enrollments ΓÇª
+  POST            enrollments ΓÇª
+  GET|HEAD        enrollments/create enrollments.create ΓÇ║ EnrollmentControllerΓÇª
+  DELETE          enrollments/{enrollment} enrollments.destroy ΓÇ║ EnrollmentContrΓÇª
+  GET|HEAD        events eventΓÇª
+  POST            events eventΓÇª
+  GET|HEAD        events-calendar-data events.calendar-data ΓÇ║ EventController@calΓÇª
+  GET|HEAD        events/create events.create ΓÇ║ EventController@creaΓÇª
+  GET|HEAD        events/{event} events.show ΓÇ║ EventController@sΓÇª
+  PUT|PATCH       events/{event} events.update ΓÇ║ EventController@updΓÇª
+  DELETE          events/{event} events.destroy ΓÇ║ EventController@destΓÇª
+  GET|HEAD        events/{event}/edit events.edit ΓÇ║ EventControlΓÇª
+  GET|HEAD        grades gradeΓÇª
+  POST            grades gradeΓÇª
+  GET|HEAD        grades/create grades.create ΓÇ║ GradeController@creaΓÇª
+  GET|HEAD        grades/{grade} grades.show ΓÇ║ GradeController@sΓÇª
+  PUT|PATCH       grades/{grade} grades.update ΓÇ║ GradeController@updΓÇª
+  DELETE          grades/{grade} grades.destroy ΓÇ║ GradeController@destΓÇª
+  GET|HEAD        grades/{grade}/edit grades.edit ΓÇ║ GradeControlΓÇª
+  GET|HEAD        login login ΓÇª
+  POST            login Auth\LΓÇª
+  POST            logout logouΓÇª
+  GET|HEAD        messages mesΓÇª
+  POST            messages mesΓÇª
+  GET|HEAD        messages/create messages.create ΓÇ║ MessageController@crΓÇª
+  GET|HEAD        messages/sent messages.sent ΓÇ║ MessageController@seΓÇª
+  GET|HEAD        messages/{message} messages.show ΓÇ║ MessageControllΓÇª
+  DELETE          messages/{message} messages.destroy ΓÇ║ MessageController@ΓÇª
+  GET|HEAD        notifications notifications.index ΓÇ║ NotificationController@indΓÇª
+  POST            notifications/mark-all-read notifications.markAllRead ΓÇ║ NotificationControΓÇª
+  GET|HEAD        notifications/{id}/read notifications.read ΓÇ║ NotificationControlleΓÇª
+  GET|HEAD        parent-dashboard parent.dashboard ΓÇ║ ParentDashboardController@ΓÇª
+  GET|HEAD        parent-dashboard/child/{child} parent.dashboard.show ΓÇ║ ParentDashboardCΓÇª
+  GET|HEAD        parents pareΓÇª
+  POST            parents pareΓÇª
+  GET|HEAD        parents/create parents.create ΓÇ║ ParentController@creΓÇª
+  DELETE          parents/{parent} parents.destroy ΓÇ║ ParentController@deΓÇª
+  GET|HEAD        pricing pricΓÇª
+  GET|HEAD        profile profΓÇª
+  PUT             profile profΓÇª
+  GET|HEAD        profile/edit profile.edit ΓÇ║ ProfileController@ediΓÇª
+  POST            register AutΓÇª
+  GET|HEAD        reports repoΓÇª
+  GET|HEAD        reports/{student} report.show ΓÇ║ ReportControlleΓÇª
+  GET|HEAD        reports/{student}/pdf report.pdf ΓÇ║ ReportControllerΓÇª
+  GET|HEAD        sanctum/csrf-cookie sanctum.csrf-cookie ΓÇ║ Laravel\Sanctum ΓÇ║ CsrfCookieControlΓÇª
+  GET|HEAD        schools schoΓÇª
+  GET|HEAD        schools/payment/success schools.payment.success ΓÇ║ SchoolRegistrationController@paΓÇª
+  GET|HEAD        schools/register schools.register ΓÇ║ SchoolRegistrationController@shoΓÇª
+  POST            schools/register schools.register.submit ΓÇ║ SchoolRegistrationController@regΓÇª
+  GET|HEAD        schools/{school} schools.show ΓÇ║ SchoolControllerΓÇª
+  PUT|PATCH       schools/{school} schools.update ΓÇ║ SchoolController@uΓÇª
+  DELETE          schools/{school} schools.destroy ΓÇ║ SchoolController@deΓÇª
+  GET|HEAD        schools/{school}/edit schools.edit ΓÇ║ SchoolContrΓÇª
+  POST            schools/{school}/regenerate-invite schools.regenerate-invite ΓÇ║ SchoolControllΓÇª
+  GET|HEAD        student/attendances student.attendances.index ΓÇ║ StudentAttendanceControllΓÇª
+  GET|HEAD        student/attendances/scan student.attendance.scan ΓÇ║ StudentAttendanceCoΓÇª
+  POST            student/attendances/scan student.attendance.process ΓÇ║ StudentAttendanceControlleΓÇª
+  GET|HEAD        student/exams student.exams.index ΓÇ║ StudentExamController@indΓÇª
+  POST            student/exams/{exam}/start student.exams.start ΓÇ║ StudentExamCΓÇª
+  POST            student/exams/{exam}/submit/{attempt} student.exams.submit ΓÇ║ StΓÇª
+  GET|HEAD        student/exams/{exam}/take/{attempt} student.exams.take ΓÇ║ StΓÇª
+  GET|HEAD        subjects subΓÇª
+  POST            subjects subΓÇª
+  GET|HEAD        subjects/create subjects.create ΓÇ║ SubjectController@crΓÇª
+  GET|HEAD        subjects/{subject} subjects.show ΓÇ║ SubjectControllΓÇª
+  PUT|PATCH       subjects/{subject} subjects.update ΓÇ║ SubjectControllerΓÇª
+  DELETE          subjects/{subject} subjects.destroy ΓÇ║ SubjectController@ΓÇª
+  GET|HEAD        subjects/{subject}/edit subjects.edit ΓÇ║ SubjectConΓÇª
+  GET|HEAD        subscriptions subscriptions.index ΓÇ║ SubscriptionController@indΓÇª
+  POST            subscriptions subscriptions.store ΓÇ║ SubscriptionController@stoΓÇª
+  GET|HEAD        subscriptions/create subscriptions.create ΓÇ║ SubscriptionControllΓÇª
+  GET|HEAD        subscriptions/{subscription} subscriptions.show ΓÇ║ SubscriptiΓÇª
+  PATCH           subscriptions/{subscription}/status subscriptions.update-status ΓÇ║ SubscriptioΓÇª
+  GET|HEAD        users users.ΓÇª
+  POST            users users.ΓÇª
+  GET|HEAD        users/create users.create ΓÇ║ UserController@creatΓÇª
+  GET|HEAD        users/{user} users.show ΓÇ║ UserController@shoΓÇª
+  PUT|PATCH       users/{user} users.update ΓÇ║ UserController@updatΓÇª
+  DELETE          users/{user} users.destroy ΓÇ║ UserController@destroΓÇª
+  POST            users/{user}/approve users.approve ΓÇ║ UserControlleΓÇª
+  GET|HEAD        users/{user}/edit users.edit ΓÇ║ UserControlleΓÇª
+
+           Showing [126] routes
+

@@ -26,7 +26,9 @@ class ReportController extends Controller
         }
 
         // Teacher/Admin: show student list to pick
-        $students = \App\Models\StudentProfile::with('user')->get();
+        $students = \App\Models\StudentProfile::with('user')
+            ->whereHas('user', fn($q) => $q->where('school_id', $user->school_id))
+            ->get();
         return view('reports.index', compact('students'));
     }
 
@@ -36,10 +38,15 @@ class ReportController extends Controller
     public function show(Request $request, $studentId)
     {
         $user = $request->user();
-        $student = \App\Models\StudentProfile::with('user')->findOrFail($studentId);
+        $student = \App\Models\StudentProfile::with('user.school')->findOrFail($studentId);
 
         // Students can only view their own report
         if ($user->isStudent() && $user->studentProfile?->id != $studentId) {
+            abort(403);
+        }
+
+        // Teacher/admin can only view students from their school
+        if (!$user->isStudent() && $student->user?->school_id !== $user->school_id) {
             abort(403);
         }
 
@@ -101,9 +108,14 @@ class ReportController extends Controller
     public function exportPdf(Request $request, $studentId)
     {
         $user = $request->user();
-        $student = \App\Models\StudentProfile::with('user')->findOrFail($studentId);
+        $student = \App\Models\StudentProfile::with('user.school')->findOrFail($studentId);
 
         if ($user->isStudent() && $user->studentProfile?->id != $studentId) {
+            abort(403);
+        }
+
+        // Teacher/admin can only export students from their school
+        if (!$user->isStudent() && $student->user?->school_id !== $user->school_id) {
             abort(403);
         }
 
@@ -154,6 +166,8 @@ class ReportController extends Controller
             'student', 'semester', 'tahunAjaran',
             'subjectGrades', 'overallAvg'
         ));
+
+        $pdf->setPaper('A4', 'portrait');
 
         $filename = 'Rapor_' . str_replace(' ', '_', $student->user->name) . "_{$semester}_{$tahunAjaran}.pdf";
 

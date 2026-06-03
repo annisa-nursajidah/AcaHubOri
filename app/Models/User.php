@@ -67,6 +67,11 @@ class User extends Authenticatable
         return $this->role === 'school_admin';
     }
 
+    public function isParent(): bool
+    {
+        return $this->role === 'parent';
+    }
+
     // ─── Relationships ───────────────────────────────────────────
 
     /**
@@ -91,6 +96,22 @@ class User extends Authenticatable
     public function teacherProfile()
     {
         return $this->hasOne(TeacherProfile::class);
+    }
+
+    /**
+     * Get the children (students) associated with this parent.
+     */
+    public function children()
+    {
+        return $this->belongsToMany(User::class, 'parent_student', 'parent_id', 'student_id');
+    }
+
+    /**
+     * Get the parents associated with this student.
+     */
+    public function parents()
+    {
+        return $this->belongsToMany(User::class, 'parent_student', 'student_id', 'parent_id');
     }
 
     /**

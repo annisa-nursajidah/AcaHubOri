@@ -7,7 +7,7 @@
         <h1 class="text-2xl font-bold text-gray-800">Kelas</h1>
         <p class="text-sm text-gray-500 mt-1">Kelola kelas dan wali kelas</p>
     </div>
-    @if(auth()->user()->isAdmin())
+    @if(auth()->user()->isAdmin() || auth()->user()->isSchoolAdmin())
     <a href="{{ route('classrooms.create') }}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-brand-500 text-white rounded-xl font-semibold text-sm shadow-lg shadow-brand-500/25 hover:bg-brand-600 transition">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
         Tambah Kelas
@@ -36,7 +36,7 @@
         @endif
         <div class="flex items-center gap-2 mt-4 pt-4 border-t border-gray-50">
             <a href="{{ route('classrooms.show', $classroom) }}" class="px-3 py-1.5 text-xs font-medium bg-gray-50 text-gray-700 rounded-lg hover:bg-gray-100 transition">Detail</a>
-            @if(auth()->user()->isAdmin())
+            @if(auth()->user()->isAdmin() || auth()->user()->isSchoolAdmin())
             <a href="{{ route('classrooms.edit', $classroom) }}" class="px-3 py-1.5 text-xs font-medium bg-brand-50 text-brand-700 rounded-lg hover:bg-brand-100 transition">Edit</a>
             <form method="POST" action="{{ route('classrooms.destroy', $classroom) }}" onsubmit="return confirm('Hapus kelas ini?')">
                 @csrf @method('DELETE')
