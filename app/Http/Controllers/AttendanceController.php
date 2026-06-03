@@ -62,9 +62,7 @@ class AttendanceController extends Controller
 
         $schoolId = $user->school_id;
 
-        $subjects = $user->isTeacher()
-            ? $user->teacherProfile->subjects->where('school_id', $schoolId)
-            : Subject::where('school_id', $schoolId)->get();
+        $subjects = Subject::where('school_id', $schoolId)->get();
 
         $classrooms = Classroom::where('school_id', $schoolId)->get();
 

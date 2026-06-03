@@ -169,7 +169,8 @@ class ReportController extends Controller
 
         $pdf->setPaper('A4', 'portrait');
 
-        $filename = 'Rapor_' . str_replace(' ', '_', $student->user->name) . "_{$semester}_{$tahunAjaran}.pdf";
+        $safeTahun = str_replace(['/', '\\'], '-', $tahunAjaran);
+        $filename = 'Rapor_' . str_replace(' ', '_', $student->user->name) . "_{$semester}_{$safeTahun}.pdf";
 
         return $pdf->download($filename);
     }

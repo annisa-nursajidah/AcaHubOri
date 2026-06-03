@@ -138,13 +138,14 @@ class DatabaseSeeder extends Seeder
 
         $subjects = [];
         foreach ($subjectsData as $s) {
-            $subjects[] = Subject::create($s);
+            $subjects[] = Subject::create(array_merge($s, ['school_id' => $school->id]));
         }
 
-        // Assign subjects to teachers
-        $teachers[0]->subjects()->attach([$subjects[0]->id, $subjects[3]->id]); // Budi: MTK, IPA
-        $teachers[1]->subjects()->attach([$subjects[1]->id, $subjects[4]->id]); // Siti: BIN, IPS
-        $teachers[2]->subjects()->attach([$subjects[2]->id, $subjects[5]->id]); // Agus: BIG, PKN
+        // Assign all subjects to all teachers
+        $allSubjectIds = collect($subjects)->pluck('id')->toArray();
+        foreach ($teachers as $teacher) {
+            $teacher->subjects()->attach($allSubjectIds);
+        }
 
         // ─── Students ────────────────────────────────────────
         $studentUsers = [

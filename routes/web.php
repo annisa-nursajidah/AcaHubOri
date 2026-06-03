@@ -9,6 +9,8 @@ use App\Http\Controllers\AttendanceSessionController;
 use App\Http\Controllers\ClassroomController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\ExamController;
+use App\Http\Controllers\ExamQuestionController;
 use App\Http\Controllers\GradeController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\NotificationController;
@@ -57,10 +59,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Profile
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    // Academic Years
+    // Academic Years (start-new-semester MUST be before resource to avoid route collision)
+    Route::post('academic-years/start-new-semester', [AcademicYearController::class, 'startNewSemester'])->name('academic-years.start-new-semester');
     Route::resource('academic-years', AcademicYearController::class);
     Route::patch('academic-years/{academic_year}/activate', [AcademicYearController::class, 'activate'])->name('academic-years.activate');
 
@@ -73,6 +77,11 @@ Route::middleware(['auth'])->group(function () {
     // Schools
     Route::resource('schools', SchoolController::class)->except(['create', 'store']);
     Route::post('schools/{school}/regenerate-invite', [SchoolController::class, 'regenerateInvite'])->name('schools.regenerate-invite');
+
+    // Exams
+    Route::resource('exams', ExamController::class);
+    Route::post('exams/{exam}/questions', [ExamQuestionController::class, 'store'])->name('exams.questions.store');
+    Route::delete('exams/{exam}/questions/{question}', [ExamQuestionController::class, 'destroy'])->name('exams.questions.destroy');
 
     // Classrooms
     Route::resource('classrooms', ClassroomController::class);
@@ -96,9 +105,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('attendances/{subject}', [AttendanceController::class, 'show'])->name('attendances.show');
 
     // Reports
-    Route::get('/reports', [ReportController::class, 'index'])->name('reports');
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     Route::get('/reports/{student}', [ReportController::class, 'show'])->name('report.show');
-    Route::get('/reports/{student}/pdf', [ReportController::class, 'pdf'])->name('report.pdf');
+    Route::get('/reports/{student}/pdf', [ReportController::class, 'exportPdf'])->name('report.pdf');
 
     // Users
     Route::resource('users', UserController::class);
@@ -112,8 +121,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('events-calendar-data', [EventController::class, 'calendarData'])->name('events.calendar-data');
 
     // Messages
-    Route::resource('messages', MessageController::class)->except(['edit', 'update']);
+    Route::get('messages', [MessageController::class, 'inbox'])->name('messages.inbox');
     Route::get('messages/sent', [MessageController::class, 'sent'])->name('messages.sent');
+    Route::get('messages/create', [MessageController::class, 'create'])->name('messages.create');
+    Route::post('messages', [MessageController::class, 'store'])->name('messages.store');
+    Route::get('messages/{message}', [MessageController::class, 'show'])->name('messages.show');
+    Route::delete('messages/{message}', [MessageController::class, 'destroy'])->name('messages.destroy');
 
     // Notifications
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');

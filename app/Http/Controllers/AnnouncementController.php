@@ -36,7 +36,7 @@ class AnnouncementController extends Controller
      */
     public function create()
     {
-        if (! in_array(auth()->user()->role, ['admin', 'teacher'])) {
+        if (! in_array(auth()->user()->role, ['admin', 'school_admin', 'teacher'])) {
             abort(403);
         }
         return view('announcements.create');
@@ -47,7 +47,7 @@ class AnnouncementController extends Controller
      */
     public function store(Request $request)
     {
-        if (! in_array($request->user()->role, ['admin', 'teacher'])) {
+        if (! in_array($request->user()->role, ['admin', 'school_admin', 'teacher'])) {
             abort(403);
         }
 

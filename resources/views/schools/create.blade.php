@@ -12,7 +12,7 @@
     </div>
     @endif
 
-    <form method="POST" action="{{ route('schools.store') }}" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
+    <form method="POST" action="{{ route('admin.schools.store') }}" class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-5">
         @csrf
         <div>
             <label class="block text-sm font-medium text-gray-700 mb-1.5">Nama Sekolah *</label>
