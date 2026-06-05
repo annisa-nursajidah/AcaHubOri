@@ -93,35 +93,35 @@ class DashboardController extends Controller
             }
             $data['attendanceTrend'] = $attendanceTrend;
         } else {
-            // Teacher & Student
-            $data['totalStudents'] = User::where('role', 'student')->count();
-            $data['totalTeachers'] = User::where('role', 'teacher')->count();
-            $data['totalSubjects'] = Subject::count();
-            $data['totalGrades']   = Grade::count();
+            // Teacher & Student — scoped to their school
+            $data['totalStudents'] = User::where('role', 'student')->where('school_id', $user->school_id)->count();
+            $data['totalTeachers'] = User::where('role', 'teacher')->where('school_id', $user->school_id)->count();
+            $data['totalSubjects'] = Subject::where('school_id', $user->school_id)->count();
+            $data['totalGrades']   = Grade::whereHas('subject', fn($q) => $q->where('school_id', $user->school_id))->count();
         }
 
-        // Grade distribution for chart (If School Admin, Teacher, or Student)
-        $gradeQuery = Grade::query();
-        // TODO: In a real multi-tenant app, filter Grade by school_id
-        $allGrades = $gradeQuery->get();
+        // Grade distribution for chart — scoped to current user's school via subject
+        $schoolId  = $user->school_id;
+        $allGrades = Grade::whereHas('subject', fn($q) => $q->where('school_id', $schoolId))->get();
         $data['gradeDistribution'] = [
-            'A'  => $allGrades->where('nilai', '>=', 90)->count(),
-                'B'  => $allGrades->whereBetween('nilai', [75, 89.99])->count(),
-                'C'  => $allGrades->whereBetween('nilai', [60, 74.99])->count(),
-                'D'  => $allGrades->whereBetween('nilai', [50, 59.99])->count(),
-                'E'  => $allGrades->where('nilai', '<', 50)->count(),
-            ];
+            'A' => $allGrades->where('nilai', '>=', 90)->count(),
+            'B' => $allGrades->whereBetween('nilai', [75, 89.99])->count(),
+            'C' => $allGrades->whereBetween('nilai', [60, 74.99])->count(),
+            'D' => $allGrades->whereBetween('nilai', [50, 59.99])->count(),
+            'E' => $allGrades->where('nilai', '<', 50)->count(),
+        ];
 
-            // Average per subject for chart
-            $subjectAverages = Grade::selectRaw('subject_id, AVG(nilai) as avg')
-                ->groupBy('subject_id')
-                ->with('subject')
-                ->get()
-                ->map(fn($g) => [
-                    'name' => $g->subject->nama ?? '?',
-                    'avg'  => round($g->avg, 1),
-                ]);
-            $data['subjectAverages'] = $subjectAverages;
+        // Average per subject for chart — scoped to current school
+        $subjectAverages = Grade::selectRaw('subject_id, AVG(nilai) as avg')
+            ->whereHas('subject', fn($q) => $q->where('school_id', $schoolId))
+            ->groupBy('subject_id')
+            ->with('subject')
+            ->get()
+            ->map(fn($g) => [
+                'name' => $g->subject->nama ?? '?',
+                'avg'  => round($g->avg, 1),
+            ]);
+        $data['subjectAverages'] = $subjectAverages;
 
         // Role-specific data
         if ($user->isStudent() && $user->studentProfile) {

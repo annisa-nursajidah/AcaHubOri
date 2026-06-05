@@ -10,14 +10,14 @@
 
         <div class="grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kelas</label>
-                <input type="text" name="nama" value="{{ old('nama', $classroom->nama) }}"
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Kelas <span class="text-red-400">*</span></label>
+                <input type="text" name="nama" value="{{ old('nama', $classroom->nama) }}" required
                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition @error('nama') border-red-300 @enderror">
                 @error('nama') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">Tingkat</label>
-                <input type="number" name="tingkat" value="{{ old('tingkat', $classroom->tingkat) }}" min="1" max="12"
+                <label class="block text-sm font-semibold text-gray-700 mb-2">Tingkat <span class="text-red-400">*</span></label>
+                <input type="number" name="tingkat" value="{{ old('tingkat', $classroom->tingkat) }}" min="1" max="12" required
                        class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition @error('tingkat') border-red-300 @enderror">
                 @error('tingkat') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
@@ -34,8 +34,8 @@
         </div>
 
         <div>
-            <label class="block text-sm font-semibold text-gray-700 mb-2">Tahun Ajaran</label>
-            <select name="academic_year_id" class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Tahun Ajaran <span class="text-red-400">*</span></label>
+            <select name="academic_year_id" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition">
                 <option value="">— Pilih Tahun Ajaran —</option>
                 @foreach($years as $year)
                     <option value="{{ $year->id }}" {{ old('academic_year_id', $classroom->academic_year_id) == $year->id ? 'selected' : '' }}>{{ $year->full_name }}</option>

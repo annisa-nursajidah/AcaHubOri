@@ -43,7 +43,7 @@ Route::get('/pricing', function () {
 })->name('pricing');
 
 // School Registration (public)
-Route::get('/schools/register', [SchoolRegistrationController::class, 'show'])->name('schools.register');
+Route::get('/schools/register', [SchoolRegistrationController::class, 'showForm'])->name('schools.register');
 Route::post('/schools/register', [SchoolRegistrationController::class, 'register'])->name('schools.register.submit');
 Route::get('/schools/payment/success', [SchoolRegistrationController::class, 'paymentSuccess'])->name('schools.payment.success');
 

@@ -245,5 +245,104 @@
 <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-30 hidden lg:hidden" onclick="document.getElementById('sidebar').classList.add('-translate-x-full'); this.classList.add('hidden')"></div>
 
 @stack('scripts')
+
+<script>
+/**
+ * Universal Form Validation — AcaHub
+ * Intercepts all form submissions and validates required fields client-side.
+ * Shows inline error messages and highlights invalid fields.
+ */
+(function () {
+    // Add custom styles for validation
+    const style = document.createElement('style');
+    style.textContent = `
+        .field-error {
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 0 3px rgba(239,68,68,0.15) !important;
+            animation: shake 0.35s ease;
+        }
+        .field-error-msg {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20%      { transform: translateX(-6px); }
+            40%      { transform: translateX(6px); }
+            60%      { transform: translateX(-4px); }
+            80%      { transform: translateX(4px); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    function clearErrors(form) {
+        form.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
+        form.querySelectorAll('.field-error-msg').forEach(el => el.remove());
+    }
+
+    function showError(field) {
+        field.classList.add('field-error');
+        // Remove existing JS-generated error for this field
+        const next = field.nextElementSibling;
+        if (next && next.classList.contains('field-error-msg')) next.remove();
+
+        const msg = document.createElement('p');
+        msg.className = 'field-error-msg';
+        msg.innerHTML = `<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9.303 3.376c.866 1.5-.217 3.374-1.948 3.374H4.645c-1.73 0-2.813-1.874-1.948-3.374L10.052 3.378c.866-1.5 3.032-1.5 3.898 0L21.303 16.126ZM12 15.75h.007v.008H12v-.008Z"/></svg> Wajib diisi`;
+        field.insertAdjacentElement('afterend', msg);
+    }
+
+    document.addEventListener('submit', function (e) {
+        const form = e.target;
+        // Skip forms without data-validate="false" exclusion (e.g. logout)
+        if (form.dataset.novalidate !== undefined || form.querySelector('[data-skip-validate]')) return;
+
+        clearErrors(form);
+
+        const fields = form.querySelectorAll('input[required], select[required], textarea[required]');
+        let firstInvalid = null;
+        let hasError = false;
+
+        fields.forEach(function (field) {
+            const val = field.value.trim();
+            const isEmpty = val === '' || val === '0' || (field.tagName === 'SELECT' && val === '');
+
+            if (isEmpty) {
+                showError(field);
+                hasError = true;
+                if (!firstInvalid) firstInvalid = field;
+            } else {
+                field.classList.remove('field-error');
+            }
+        });
+
+        if (hasError) {
+            e.preventDefault();
+            firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            firstInvalid.focus();
+        }
+    }, true);
+
+    // Remove error highlight when user starts typing/selecting
+    document.addEventListener('input', function (e) {
+        if (e.target.classList.contains('field-error') && e.target.value.trim() !== '') {
+            e.target.classList.remove('field-error');
+            const next = e.target.nextElementSibling;
+            if (next && next.classList.contains('field-error-msg')) next.remove();
+        }
+    });
+    document.addEventListener('change', function (e) {
+        if (e.target.classList.contains('field-error') && e.target.value.trim() !== '') {
+            e.target.classList.remove('field-error');
+            const next = e.target.nextElementSibling;
+            if (next && next.classList.contains('field-error-msg')) next.remove();
+        }
+    });
+})();
+</script>
 </body>
 </html>
