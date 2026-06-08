@@ -29,6 +29,7 @@ class LoginController extends Controller
         $credentials = $request->validate([
             'email'    => ['required', 'email'],
             'password' => ['required'],
+            // Tab 'student' dipakai untuk student & parent
             'role'     => ['required', 'in:admin,teacher,student'],
         ]);
 
@@ -37,12 +38,17 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             // Verify the authenticated user has the selected role
-            $userRole = Auth::user()->role;
+            $userRole    = Auth::user()->role;
             $isValidRole = false;
 
             if ($role === 'admin' && in_array($userRole, ['admin', 'school_admin'])) {
+                // Tab Admin: cocok untuk admin & school_admin
+                $isValidRole = true;
+            } elseif ($role === 'student' && in_array($userRole, ['student', 'parent'])) {
+                // Tab Student/Parent: cocok untuk student & parent
                 $isValidRole = true;
             } elseif ($role === $userRole) {
+                // Tab Teacher: cocok exact
                 $isValidRole = true;
             }
 

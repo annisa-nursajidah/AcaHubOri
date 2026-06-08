@@ -9,14 +9,16 @@
     </div>
 
     {{-- Summary cards --}}
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-6">
         @php
-            $pct = $total > 0 ? round(($summary['hadir'] / $total) * 100) : 0;
+            $hadirCount = $summary['present'] + $summary['late'];
+            $pct = $total > 0 ? round(($hadirCount / $total) * 100) : 0;
             $cards = [
-                ['label' => 'Hadir', 'val' => $summary['hadir'], 'emoji' => '✅', 'bg' => 'bg-green-50 border-green-100', 'text' => 'text-green-700'],
-                ['label' => 'Izin',  'val' => $summary['izin'],  'emoji' => '📝', 'bg' => 'bg-blue-50 border-blue-100',  'text' => 'text-blue-700'],
-                ['label' => 'Sakit', 'val' => $summary['sakit'], 'emoji' => '🏥', 'bg' => 'bg-amber-50 border-amber-100','text' => 'text-amber-700'],
-                ['label' => 'Alpa',  'val' => $summary['alpa'],  'emoji' => '❌', 'bg' => 'bg-red-50 border-red-100',    'text' => 'text-red-700'],
+                ['label' => 'Hadir',   'val' => $summary['present'],  'emoji' => '✅', 'bg' => 'bg-green-50 border-green-100', 'text' => 'text-green-700'],
+                ['label' => 'Terlambat','val' => $summary['late'],    'emoji' => '⏰', 'bg' => 'bg-yellow-50 border-yellow-100','text' => 'text-yellow-700'],
+                ['label' => 'Sakit',   'val' => $summary['sick'],     'emoji' => '🏥', 'bg' => 'bg-amber-50 border-amber-100', 'text' => 'text-amber-700'],
+                ['label' => 'Izin',    'val' => $summary['excused'],  'emoji' => '📝', 'bg' => 'bg-blue-50 border-blue-100',   'text' => 'text-blue-700'],
+                ['label' => 'Alpa',    'val' => $summary['absent'],   'emoji' => '❌', 'bg' => 'bg-red-50 border-red-100',     'text' => 'text-red-700'],
             ];
         @endphp
         @foreach($cards as $c)
@@ -54,20 +56,35 @@
                 @forelse($records as $r)
                     @php
                         $statusBadge = match($r->status) {
-                            'hadir'  => 'bg-green-50 text-green-700',
-                            'izin'   => 'bg-blue-50 text-blue-700',
-                            'sakit'  => 'bg-amber-50 text-amber-700',
-                            'alpa'   => 'bg-red-50 text-red-700',
-                            default  => 'bg-gray-50 text-gray-700',
+                            'present' => 'bg-green-50 text-green-700',
+                            'late'    => 'bg-yellow-50 text-yellow-700',
+                            'excused' => 'bg-blue-50 text-blue-700',
+                            'sick'    => 'bg-amber-50 text-amber-700',
+                            'absent'  => 'bg-red-50 text-red-700',
+                            default   => 'bg-gray-50 text-gray-700',
+                        };
+                        $statusLabel = match($r->status) {
+                            'present' => 'Hadir',
+                            'late'    => 'Terlambat',
+                            'excused' => 'Izin',
+                            'sick'    => 'Sakit',
+                            'absent'  => 'Alpa',
+                            default   => ucfirst($r->status),
                         };
                     @endphp
                     <tr class="hover:bg-gray-50/50 transition">
-                        <td class="px-5 py-3 text-gray-600">{{ $r->tanggal->format('d M Y') }}</td>
-                        <td class="px-5 py-3 font-medium text-gray-800">{{ $r->subject->nama }}</td>
-                        <td class="px-5 py-3 text-center">
-                            <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium {{ $statusBadge }}">{{ ucfirst($r->status) }}</span>
+                        <td class="px-5 py-3 text-gray-600">
+                            {{ \Carbon\Carbon::parse($r->date)->format('d M Y') }}
                         </td>
-                        <td class="px-5 py-3 text-gray-500 text-xs">{{ $r->teacherProfile?->user?->name ?? '-' }}</td>
+                        <td class="px-5 py-3 font-medium text-gray-800">
+                            {{ $r->session?->subject?->nama ?? '-' }}
+                        </td>
+                        <td class="px-5 py-3 text-center">
+                            <span class="inline-flex px-2 py-0.5 rounded-full text-xs font-medium {{ $statusBadge }}">{{ $statusLabel }}</span>
+                        </td>
+                        <td class="px-5 py-3 text-gray-500 text-xs">
+                            {{ $r->session?->teacher?->name ?? '-' }}
+                        </td>
                     </tr>
                 @empty
                     <tr><td colspan="4" class="px-5 py-8 text-center text-gray-400">Belum ada data kehadiran.</td></tr>

@@ -14,6 +14,14 @@
         </div>
     </div>
 
+    {{-- Info scope untuk guru --}}
+    @if(auth()->user()->isTeacher())
+        <div class="mb-5 flex items-start gap-3 bg-blue-50 border border-blue-200 text-blue-800 rounded-xl px-4 py-3 text-sm">
+            <svg class="w-4 h-4 mt-0.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z"/></svg>
+            <span>Anda hanya dapat memberikan nilai untuk <strong>mata pelajaran yang Anda ampu</strong> dan <strong>siswa aktif</strong> di sekolah Anda.</span>
+        </div>
+    @endif
+
     {{-- Form --}}
     <div class="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
         <form method="POST" action="{{ route('grades.store') }}" class="space-y-5">
@@ -39,15 +47,24 @@
             {{-- Subject --}}
             <div>
                 <label for="subject_id" class="block text-sm font-medium text-gray-700 mb-1">Mata Pelajaran <span class="text-red-400">*</span></label>
-                <select id="subject_id" name="subject_id" required
-                    class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition">
-                    <option value="">Pilih Mata Pelajaran</option>
-                    @foreach($subjects as $subject)
-                        <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
-                            {{ $subject->nama }} ({{ $subject->kode }})
-                        </option>
-                    @endforeach
-                </select>
+                @if(auth()->user()->isTeacher() && $subjects->count() === 1)
+                    {{-- Guru hanya punya 1 matkul: auto-select dan lock --}}
+                    <input type="hidden" name="subject_id" value="{{ $subjects->first()->id }}">
+                    <div class="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 text-sm text-gray-700">
+                        {{ $subjects->first()->nama }} ({{ $subjects->first()->kode }})
+                        <span class="ml-2 text-xs text-gray-400">— mata pelajaran Anda</span>
+                    </div>
+                @else
+                    <select id="subject_id" name="subject_id" required
+                        class="w-full px-4 py-3 rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500/30 focus:border-brand-500 transition">
+                        <option value="">Pilih Mata Pelajaran</option>
+                        @foreach($subjects as $subject)
+                            <option value="{{ $subject->id }}" {{ old('subject_id') == $subject->id ? 'selected' : '' }}>
+                                {{ $subject->nama }} ({{ $subject->kode }})
+                            </option>
+                        @endforeach
+                    </select>
+                @endif
                 @error('subject_id')
                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                 @enderror

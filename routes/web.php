@@ -142,7 +142,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Parent Dashboard
     Route::get('/parent-dashboard', [ParentDashboardController::class, 'index'])->name('parent.dashboard');
-    Route::get('/parent-dashboard/child/{child}', [ParentDashboardController::class, 'show'])->name('parent.dashboard.show');
+    Route::get('/parent-dashboard/child/{child}', [ParentDashboardController::class, 'showChild'])->name('parent.dashboard.show');
 
     // Student Attendances
     Route::get('student/attendances', [StudentAttendanceController::class, 'index'])->name('student.attendances.index');
