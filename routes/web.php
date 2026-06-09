@@ -147,7 +147,7 @@ Route::middleware(['auth'])->group(function () {
     // Student Attendances
     Route::get('student/attendances', [StudentAttendanceController::class, 'index'])->name('student.attendances.index');
     Route::get('student/attendances/scan', [StudentAttendanceController::class, 'scan'])->name('student.attendance.scan');
-    Route::post('student/attendances/scan', [StudentAttendanceController::class, 'process'])->name('student.attendance.process');
+    Route::post('student/attendances/scan', [StudentAttendanceController::class, 'processScan'])->name('student.attendance.process');
 
     // Student Exams
     Route::get('student/exams', [StudentExamController::class, 'index'])->name('student.exams.index');

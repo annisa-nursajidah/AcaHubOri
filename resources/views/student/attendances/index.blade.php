@@ -37,7 +37,7 @@
                                 {{ $row->session->date->translatedFormat('l, d F Y') }}
                             </td>
                             <td class="px-6 py-4 border-l-4 border-transparent">
-                                <div class="font-bold text-gray-900 mb-0.5">{{ $row->session->subject->name }}</div>
+                                <div class="font-bold text-gray-900 mb-0.5">{{ $row->session->subject->nama }}</div>
                                 <div class="text-xs text-gray-500">Guru: {{ $row->session->teacher->name }}</div>
                             </td>
                             <td class="px-6 py-4 border-l-4 border-transparent text-gray-600 font-medium">

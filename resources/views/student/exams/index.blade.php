@@ -31,7 +31,7 @@
                 <div class="flex items-start justify-between mb-4">
                     <span class="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider
                         {{ $isFinished ? 'bg-gray-100 text-gray-600' : ($isInProgress ? 'bg-brand-50 text-brand-600' : 'bg-blue-50 text-blue-600') }}">
-                        {{ $exam->subject->name }}
+                        {{ $exam->subject->nama }}
                     </span>
                     
                     @if($isFinished)

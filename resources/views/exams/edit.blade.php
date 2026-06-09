@@ -29,7 +29,7 @@
                 <select name="subject_id" id="subject_id" required
                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition-all">
                     @foreach($subjects as $subject)
-                        <option value="{{ $subject->id }}" {{ old('subject_id', $exam->subject_id) == $subject->id ? 'selected' : '' }}>{{ $subject->name }}</option>
+                        <option value="{{ $subject->id }}" {{ old('subject_id', $exam->subject_id) == $subject->id ? 'selected' : '' }}>{{ $subject->nama }} ({{ $subject->kode }})</option>
                     @endforeach
                 </select>
                 @error('subject_id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
@@ -40,7 +40,7 @@
                 <select name="classroom_id" id="classroom_id" required
                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition-all">
                     @foreach($classrooms as $classroom)
-                        <option value="{{ $classroom->id }}" {{ old('classroom_id', $exam->classroom_id) == $classroom->id ? 'selected' : '' }}>{{ $classroom->name }} (Tingkat {{ $classroom->grade_level }})</option>
+                        <option value="{{ $classroom->id }}" {{ old('classroom_id', $exam->classroom_id) == $classroom->id ? 'selected' : '' }}>{{ $classroom->nama }} (Tingkat {{ $classroom->tingkat }})</option>
                     @endforeach
                 </select>
                 @error('classroom_id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror

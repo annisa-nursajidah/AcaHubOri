@@ -32,7 +32,7 @@
                 @endif
             </div>
 
-            <h3 class="font-bold text-lg text-gray-900 leading-tight mb-2">{{ $session->subject->name }}</h3>
+            <h3 class="font-bold text-lg text-gray-900 leading-tight mb-2">{{ $session->subject->nama }}</h3>
             
             <div class="mt-auto space-y-2 mb-5">
                 <div class="flex items-center gap-2 text-xs text-gray-500 font-medium">

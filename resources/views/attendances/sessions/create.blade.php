@@ -22,7 +22,7 @@
                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition-all">
                     <option value="" disabled selected>Pilih Mapel...</option>
                     @foreach($subjects as $subject)
-                        <option value="{{ $subject->id }}">{{ $subject->name }}</option>
+                        <option value="{{ $subject->id }}">{{ $subject->nama }}</option>
                     @endforeach
                 </select>
                 @error('subject_id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror
@@ -34,7 +34,7 @@
                         class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50/50 text-sm focus:bg-white focus:outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/10 transition-all">
                     <option value="" disabled selected>Pilih Kelas...</option>
                     @foreach($classrooms as $classroom)
-                        <option value="{{ $classroom->id }}">{{ $classroom->name }}</option>
+                        <option value="{{ $classroom->id }}">{{ $classroom->nama }}</option>
                     @endforeach
                 </select>
                 @error('classroom_id')<p class="mt-1 text-xs text-red-500">{{ $message }}</p>@enderror

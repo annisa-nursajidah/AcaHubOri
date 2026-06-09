@@ -8,7 +8,7 @@
         </a>
         <div>
             <h1 class="text-2xl font-black text-gray-900 tracking-tight">{{ $exam->title }}</h1>
-            <p class="text-sm text-gray-500 mt-1">Builder Soal CBT &bull; Kelas {{ $exam->classroom->name }}</p>
+            <p class="text-sm text-gray-500 mt-1">Builder Soal CBT &bull; Kelas {{ $exam->classroom->nama }}</p>
         </div>
     </div>
     
@@ -31,7 +31,7 @@
             <ul class="space-y-3 text-sm">
                 <li class="flex justify-between items-center py-2 border-b border-gray-50">
                     <span class="text-gray-500">Mata Pelajaran</span>
-                    <span class="font-semibold text-gray-900">{{ $exam->subject->name }}</span>
+                    <span class="font-semibold text-gray-900">{{ $exam->subject->nama }}</span>
                 </li>
                 <li class="flex justify-between items-center py-2 border-b border-gray-50">
                     <span class="text-gray-500">Durasi Pengerjaan</span>
@@ -109,7 +109,7 @@
                         <button @click="closeModal" class="text-gray-400 hover:text-gray-500"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
                     </div>
 
-                    <form action="{{ route('exams.questions.store', $exam) }}" method="POST" class="p-6 space-y-6">
+                    <form action="{{ route('exams.questions.store', $exam) }}" method="POST" class="p-6 space-y-6" data-novalidate>
                         @csrf
                         <input type="hidden" name="type" x-bind:value="questionType">
 

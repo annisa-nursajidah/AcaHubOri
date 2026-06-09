@@ -30,9 +30,20 @@ class AttendanceSessionController extends Controller
     public function create()
     {
         $user = auth()->user();
-        $subjects = Subject::where('school_id', $user->school_id)->get();
+
+        // Guru hanya melihat subject yang diampu sendiri
+        if ($user->isTeacher()) {
+            $teacherProfile = $user->teacherProfile;
+            $subjects = $teacherProfile
+                ? $teacherProfile->subjects()->where('subjects.school_id', $user->school_id)->get()
+                : collect();
+        } else {
+            $subjects = Subject::where('school_id', $user->school_id)->get();
+        }
+
+
         $classrooms = Classroom::where('school_id', $user->school_id)->get();
-        
+
         return view('attendances.sessions.create', compact('subjects', 'classrooms'));
     }
 

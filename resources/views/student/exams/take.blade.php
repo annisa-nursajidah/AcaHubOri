@@ -6,7 +6,7 @@
     <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h1 class="text-2xl font-black text-gray-900 tracking-tight">{{ $exam->title }}</h1>
-            <p class="text-sm text-gray-500 mt-1">{{ $exam->subject->name }} &bull; Oleh {{ $exam->teacher->name }}</p>
+            <p class="text-sm text-gray-500 mt-1">{{ $exam->subject->nama }} &bull; Oleh {{ $exam->teacher->name }}</p>
         </div>
 
         <div class="bg-white border-2 border-brand-100 rounded-xl px-5 py-3 shadow-sm flex items-center gap-3 w-fit">

@@ -29,11 +29,11 @@
                     <tr class="hover:bg-gray-50/50 transition-colors">
                         <td class="py-4 px-6">
                             <div class="font-bold text-gray-900">{{ $exam->title }}</div>
-                            <div class="text-xs text-brand-600 font-medium mt-0.5">{{ $exam->subject->name }}</div>
+                            <div class="text-xs text-brand-600 font-medium mt-0.5">{{ $exam->subject->nama }}</div>
                         </td>
                         <td class="py-4 px-6">
                             <span class="inline-flex items-center px-2.5 py-1 text-xs font-semibold bg-gray-100 text-gray-700 rounded-lg">
-                                {{ $exam->classroom->name }}
+                                {{ $exam->classroom->nama }}
                             </span>
                         </td>
                         <td class="py-4 px-6 text-sm text-gray-600">
